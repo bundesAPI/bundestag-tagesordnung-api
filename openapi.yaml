@@ -1,45 +1,94 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-  description: "API Description"
-  version: "1.0.0"
-  title: "API Name"
-  x-office: "Amtsname"
-  contact:
-    name: Zuständige Behörde
-    email: behoerde@example.de
-    url: https://example.de
-
+  title: Tagesordnungen API
+  version: 1.0.0
 servers:
-  - url: "https://warnung.bund.de/api31"
-
-tags:
-  - name: default
-
+  - url: https://api.hutt.io/
 paths:
-  /dashboard/{AGS}.json:
+  /bt-to/csv:
     get:
-      summary: Name des Endpoints
-      description: Hier wird die Funktion des Endpunktes beschrieben.
-      operationId: getAGS
-      tags:
-        - default
+      summary: Tagesordnungen im CSV-Format abrufen
+      parameters:
+        - name: year
+          in: query
+          description: Das Jahr, für das Tagesordnungen abgerufen werden sollen (optional)
+          schema:
+            type: integer
+        - name: week
+          in: query
+          description: Die Kalenderwoche, für die Tagesordnungen abgerufen werden sollen (optional; kann mit Jahr kombiniert werden)
+          schema:
+            type: integer
       responses:
-        "200":
-          description: OK
+        '200':
+          description: Erfolgreiche Antwort
+          content:
+            text/csv:
+              schema:
+                type: string
+  /bt-to/json:
+    get:
+      summary: Tagesordnungen im JSON-Format abrufen
+      parameters:
+        - name: week
+          in: query
+          description: Die Kalenderwoche, für die Tagesordnungen abgerufen werden sollen (optional)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Erfolgreiche Antwort
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Result"
+                type: array
+                items:
+                  type: object
+  /bt-to/xml:
+    get:
+      summary: Tagesordnungen im XML-Format abrufen
       parameters:
-        - in: path
-          required: true
-          name: AGS
+        - name: year
+          in: query
+          description: Das Jahr, für das Tagesordnungen abgerufen werden sollen (optional)
           schema:
-            type: string
-          description: Amtlicher Gebietsschlüssel - kann z.B. von [hier](https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31/download/Regionalschl_ssel_2021-07-31.json) bezogen werden. Die Letzten 7 Stellen müssen dabei mit "0000000" ersetzt werden, weil die Daten nur auf [Kreisebene](https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschl%C3%BCssel) bereitgestellt werden.
-          example: "example-parameter"
+            type: integer
+        - name: week
+          in: query
+          description: Die Kalenderwoche, für die Tagesordnungen abgerufen werden sollen (optional; kann mit Jahr kombiniert werden)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Erfolgreiche Antwort
+          content:
+            application/xml:
+              schema:
+                type: string
+  /bt-to/ical:
+    get:
+      summary: Tagesordnungen im iCal-Format abrufen
+      parameters:
+        - name: na
+          in: query
+          description: Zusätzliche Kalendereinträge für Namentliche Abstimmungen erstellen (optional; kombinierbar)
+          schema:
+            type: boolean
+        - name: naAlarm
+          in: query
+          description: Alarme 15 Minuten vor Namentlichen Abstimmungen hinzufügen (optional; kombinierbar)
+          schema:
+            type: boolean
+        - name: showSW
+          in: query
+          description: Ganztägige Termine für Sitzungswochen erstellen (optional; kombinierbar)
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Erfolgreiche Antwort
+          content:
+            text/calendar:
+              schema:
+                type: string
 
-components:
-  schemas:
-    Result:
-      type: string

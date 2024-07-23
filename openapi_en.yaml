@@ -1,46 +1,93 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-  description: "API Description"
-  version: "1.0.0"
-  title: "API Name"
-  x-office: "Amtsname"
-  contact:
-    name: Responsible authority
-    email: behoerde@example.com
-    url: https://example.com
-
+  title: Tagesordnungen API
+  version: 1.0.0
 servers:
-  - url: "https://warnung.bund.de/api31"
-
-tags:
-  - name: default
-
+  - url: https://api.hutt.io/
 paths:
-  /dashboard/{AGS}.json:
+  /bt-to/csv:
     get:
-      summary: Name of endpoint
-      description: Here the function of the end point is described.
-      operationId: getAGS
-      tags:
-        - default
+      summary: Get Tagesordnungen in CSV format
+      parameters:
+        - name: year
+          in: query
+          description: The year for which to retrieve Tagesordnungen (optional)
+          schema:
+            type: integer
+        - name: week
+          in: query
+          description: The calendar week for which to retrieve Tagesordnungen (optional; can be combined with year)
+          schema:
+            type: integer
       responses:
         '200':
-            description: OK
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Result'
+          description: Successful response
+          content:
+            text/csv:
+              schema:
+                type: string
+  /bt-to/json:
+    get:
+      summary: Get Tagesordnungen in JSON format
       parameters:
-        - in: path
-          required: true
-          name: AGS
+        - name: week
+          in: query
+          description: The calendar week for which to retrieve Tagesordnungen (optional)
           schema:
-            type: string
-          description: Official area key - can be retrieved from [here](https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31/download/Regionalschl_ssel_2021-07-31.json). The last 7 digits have to be replaced with "0000000" because data is only offered on the area level [Kreisebene](https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschl%C3%BCssel).
-          example: "example-parameter"
-
-
-components:
-    schemas:
-      Result:
-        type: string
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /bt-to/xml:
+    get:
+      summary: Get Tagesordnungen in XML format
+      parameters:
+        - name: year
+          in: query
+          description: The year for which to retrieve Tagesordnungen (optional)
+          schema:
+            type: integer
+        - name: week
+          in: query
+          description: The calendar week for which to retrieve Tagesordnungen (optional; can be combined with year)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/xml:
+              schema:
+                type: string
+  /bt-to/ical:
+    get:
+      summary: Get Tagesordnungen in iCal format
+      parameters:
+        - name: na
+          in: query
+          description: Create additional calendar entries for Namentliche Abstimmungen (optional; combinable)
+          schema:
+            type: boolean
+        - name: naAlarm
+          in: query
+          description: Add alarms 15 minutes before Namentliche Abstimmungen (optional; combinable)
+          schema:
+            type: boolean
+        - name: showSW
+          in: query
+          description: Create all-day appointments for Sitzungswochen (optional; combinable)
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            text/calendar:
+              schema:
+                type: string
